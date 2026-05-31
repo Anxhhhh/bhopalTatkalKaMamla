@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+// API Base URL config for Netlify -> Render or Local development
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 // Constants for Live Data Simulation
 const INITIAL_ZONES = [
   { name: 'Zone Alpha', temp: '42°C', status: 'Extreme Heat', color: 'text-error', density: 'High', coordinates: '23.2599° N, 77.4126° E' },
@@ -149,7 +152,7 @@ export default function App() {
         return;
       }
       try {
-        const config = await fetch('http://localhost:5000/api/config').then(r => r.json());
+        const config = await fetch(`${API_BASE_URL}/api/config`).then(r => r.json());
         const key = config.googleMapsApiKey;
         const script = document.createElement('script');
         script.src = `https://maps.googleapis.com/maps/api/js?${key ? `key=${key}&` : ''}libraries=places,geometry`;
@@ -283,10 +286,10 @@ export default function App() {
     const fetchBackendData = async () => {
       try {
         const [zonesRes, stationsRes, logsRes, cricketRes] = await Promise.all([
-          fetch('http://localhost:5000/api/zones').then(r => r.json()),
-          fetch('http://localhost:5000/api/stations').then(r => r.json()),
-          fetch('http://localhost:5000/api/logs').then(r => r.json()),
-          fetch('http://localhost:5000/api/events/cricket').then(r => r.json())
+          fetch(`${API_BASE_URL}/api/zones`).then(r => r.json()),
+          fetch(`${API_BASE_URL}/api/stations`).then(r => r.json()),
+          fetch(`${API_BASE_URL}/api/logs`).then(r => r.json()),
+          fetch(`${API_BASE_URL}/api/events/cricket`).then(r => r.json())
         ]);
 
         setZones(zonesRes);
@@ -362,13 +365,13 @@ export default function App() {
 
     if (backendOnline) {
       try {
-        await fetch('http://localhost:5000/api/events/toggle', {
+        await fetch(`${API_BASE_URL}/api/events/toggle`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ active: nextAlertState })
         });
         
-        await fetch('http://localhost:5000/api/logs', {
+        await fetch(`${API_BASE_URL}/api/logs`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
@@ -420,7 +423,7 @@ export default function App() {
 
             // Post log event to backend
             if (backendOnline) {
-              fetch('http://localhost:5000/api/logs', {
+              fetch(`${API_BASE_URL}/api/logs`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
